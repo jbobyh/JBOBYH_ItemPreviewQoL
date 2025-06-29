@@ -1,0 +1,25 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.14.36221.1 d17.14
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "JBOBYH_ItemPreviewQoL", "JBOBYH_ItemPreviewQoL.csproj", "{BF1500B9-6FAA-402D-A00C-329D40251733}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{BF1500B9-6FAA-402D-A00C-329D40251733}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{BF1500B9-6FAA-402D-A00C-329D40251733}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{BF1500B9-6FAA-402D-A00C-329D40251733}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{BF1500B9-6FAA-402D-A00C-329D40251733}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {D20B3703-A3FE-4DE7-B280-10122BAD158B}
+	EndGlobalSection
+EndGlobal
