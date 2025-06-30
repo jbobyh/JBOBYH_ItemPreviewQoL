@@ -4,7 +4,7 @@ using SPT.Reflection.Patching;
 using HarmonyLib;
 using System.Reflection;
 
-namespace ItemPreviewQoL.Patches
+namespace JBOBYH_ItemPreviewQoL.Patches
 {
     /// <summary>
     /// Этот патч срабатывает после открытия окна предпросмотра (метод Show).
@@ -14,6 +14,7 @@ namespace ItemPreviewQoL.Patches
     {
         protected override MethodBase GetTargetMethod() => AccessTools.Method(typeof(ItemInfoWindowLabels), "Show");
 
+        [HarmonyAfter("Tyfon.UIFixes")]
         [PatchPostfix]
         private static void Postfix(ItemInfoWindowLabels __instance, WeaponPreview weaponPreview)
         {

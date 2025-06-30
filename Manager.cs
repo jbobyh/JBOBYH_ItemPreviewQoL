@@ -2,15 +2,15 @@
 using EFT.UI.WeaponModding;
 using HarmonyLib;
 using JBOBYH_ItemPreviewQoL;
-using SPT.Reflection.Patching;
 using System;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
+using UnityExplorer.UI.Panels;
 
-namespace ItemPreviewQoL.Patches
+namespace JBOBYH_ItemPreviewQoL.Patches
 {
     /// <summary>
     /// Класс-контейнер для хранения состояния и ссылок на объекты для одного конкретного экземпляра окна предпросмотра.
@@ -53,12 +53,7 @@ namespace ItemPreviewQoL.Patches
         private Vector2 _originalSizeDelta;
         private ContentSizeFitter _sizeFitter;
         private RectTransform _windowRectTransform;
-
-        // Поля для хранения делегатов для корректной отписки
-        public Action<PointerEventData> OnBeginDragAction;
-        public Action<PointerEventData> OnDragAction;
-        public Action<PointerEventData> OnEndDragAction;
-        public Action<PointerEventData> OnPointerClickAction;
+        public float _originalFlexibleHeight;
 
         // Публичные свойства с "ленивой" загрузкой для безопасного доступа к объектам
         public Transform Rotator => _rotator ??= _weaponPreview?.Rotator;
@@ -103,7 +98,7 @@ namespace ItemPreviewQoL.Patches
                         // Если мы получили список источников света впервые, сохраняем их состояние
                         if (_lights != null && _originalLightStates == null)
                         {
-                            _originalLightStates = new Dictionary<Light, TransformState>();
+                            _originalLightStates = [];
                             foreach (var light in _lights)
                             {
                                 if (light != null)
@@ -124,10 +119,7 @@ namespace ItemPreviewQoL.Patches
 
         private Vector3 _absoluteInitialPivotPosition;
 
-        public PreviewInstanceData(WeaponPreview weaponPreview)
-        {
-            _weaponPreview = weaponPreview;
-        }
+        public PreviewInstanceData(WeaponPreview weaponPreview) => _weaponPreview = weaponPreview;
 
         public void Initialize(ItemInfoWindowLabels instance)
         {
@@ -246,6 +238,58 @@ namespace ItemPreviewQoL.Patches
 
             if (IsFullscreen)
             {
+                #region Tyfon
+
+                if (Plugin.TyfonPresent())
+                {
+                    LayoutElement previewPanel = instance.transform.Find("Inner/Contents/Preview Panel")?.GetComponent<LayoutElement>();
+                    if (previewPanel != null)
+                    {
+                        _originalFlexibleHeight = previewPanel.flexibleHeight;
+                        previewPanel.flexibleHeight = 1;
+                    }
+
+                    Transform сaptionPanel = instance.transform.Find("Inner/Caption Panel");
+                    foreach (Transform child in сaptionPanel)
+                    {
+                        if (child.name == "Close Button(Clone)")
+                        {
+                            child.gameObject.SetActive(false);
+                        }
+                        else if (child.name == "Restore")
+                        {
+                            Button restoreButton = child.GetComponent<Button>();
+                            if (restoreButton != null && restoreButton.IsActive())
+                            {
+                                restoreButton.onClick.AddListener(() =>
+                                {
+                                    if (ItemPreviewInteractionManager._instanceData.TryGetValue(instance, out PreviewInstanceData data))
+                                    {
+                                        if (data.IsFullscreen)
+                                        {
+                                            foreach (Transform child in сaptionPanel)
+                                            {
+                                                if (child.name == "Close Button(Clone)")
+                                                {
+                                                    child.gameObject.SetActive(true);
+                                                }
+                                                else if (child.name == "Restore")
+                                                {
+                                                    restoreButton.transform.localPosition = new Vector3(restoreButton.transform.localPosition.x - 2 * (((RectTransform)restoreButton.transform).rect.width + 3), restoreButton.transform.localPosition.y, restoreButton.transform.localPosition.z);
+                                                }
+                                            }
+                                            data.ExitFullscreenIfActive();
+                                        }
+                                    }
+                                });
+                                restoreButton.transform.localPosition = new Vector3(restoreButton.transform.localPosition.x + 2 * (((RectTransform)restoreButton.transform).rect.width + 3), restoreButton.transform.localPosition.y, restoreButton.transform.localPosition.z);
+                            }
+                        }
+                    }
+                }
+
+                #endregion
+
                 // --- РЕЖИМ "НА ВЕСЬ ЭКРАН" ---
                 BringToFront();
                 _sizeFitter.enabled = false;
@@ -262,20 +306,53 @@ namespace ItemPreviewQoL.Patches
             }
             else
             {
+                #region Tyfon
+
+                if (Plugin.TyfonPresent())
+                {
+                    LayoutElement previewPanel = instance.transform.Find("Inner/Contents/Preview Panel")?.GetComponent<LayoutElement>();
+                    if (previewPanel != null)
+                    {
+                        previewPanel.flexibleHeight = _originalFlexibleHeight;
+                    }
+
+                    Transform сaptionPanel = instance.transform.Find("Inner/Caption Panel");
+                    foreach (Transform child in сaptionPanel)
+                    {
+                        if (child.name == "Close Button(Clone)")
+                        {
+                            child.gameObject.SetActive(true);
+                        }
+                        else if (child.name == "Restore")
+                        {
+                            Button restoreButton = child.GetComponent<Button>();
+                            if (restoreButton != null && restoreButton.IsActive())
+                            {
+                                restoreButton.transform.localPosition = new Vector3(restoreButton.transform.localPosition.x - 2 * (((RectTransform)restoreButton.transform).rect.width + 3), restoreButton.transform.localPosition.y, restoreButton.transform.localPosition.z);
+                            }
+                        }
+                    }
+
+                }
+
+                #endregion
+
+                _sizeFitter.enabled = true;
+
                 // --- ВОССТАНАВЛИВАЕМ ИСХОДНЫЙ РАЗМЕР ---
                 windowRect.anchorMin = _originalAnchorMin;
                 windowRect.anchorMax = _originalAnchorMax;
                 windowRect.anchoredPosition = _originalAnchoredPosition;
                 windowRect.sizeDelta = _originalSizeDelta;
 
-                _sizeFitter.enabled = true;
+
             }
         }
 
         /// <summary>
         /// Принудительно сворачивает окно из полноэкранного режима, если оно было в нем.
         /// </summary>
-        public void ExitFullscreenIfActive(ItemInfoWindowLabels instance)
+        public void ExitFullscreenIfActive()
         {
             // Если мы не в полноэкранном режиме, ничего не делаем
             if (!IsFullscreen) return;
@@ -336,7 +413,7 @@ namespace ItemPreviewQoL.Patches
         private const float PanLimit = 0.3f;
 
         // Словарь для хранения данных по каждому экземпляру окна. Ключ - сам компонент окна.
-        private static readonly Dictionary<ItemInfoWindowLabels, PreviewInstanceData> _instanceData = new Dictionary<ItemInfoWindowLabels, PreviewInstanceData>();
+        public static readonly Dictionary<ItemInfoWindowLabels, PreviewInstanceData> _instanceData = [];
 
         /// <summary>
         /// Регистрирует новый экземпляр окна, когда оно открывается.
@@ -348,24 +425,14 @@ namespace ItemPreviewQoL.Patches
             var data = new PreviewInstanceData(weaponPreview);
             data.Initialize(instance);
 
-            // Подписываемся на события перетаскивания мыши
-            data.OnBeginDragAction = (eventData) => OnBeginDrag(instance, eventData);
-            data.OnDragAction = (eventData) => OnDrag(instance, eventData);
-            data.OnEndDragAction = (eventData) => OnEndDrag(instance, eventData);
 
             _instanceData[instance] = data;
 
 
-            // Подписываемся на события, используя сохраненные делегаты
-            instance.DragTrigger_0.onBeginDrag += data.OnBeginDragAction;
-            instance.DragTrigger_0.onDrag += data.OnDragAction;
-            instance.DragTrigger_0.onEndDrag += data.OnEndDragAction;
 
             // Создаем кастомную кнопку для полноэкранного режима
-            CreateFullscreenButton(instance, data);
-
-            // При закрытии окна вызываем DeregisterInstance для очистки
-            //instance.AddDisposable((Action)(() => DeregisterInstance(instance)));
+            if (!Plugin.TyfonPresent())
+                CreateFullscreenButton(instance, data);
         }
 
         /// <summary>
@@ -377,9 +444,6 @@ namespace ItemPreviewQoL.Patches
             {
                 data.ResetLights();
 
-                instance.DragTrigger_0.onBeginDrag -= data.OnBeginDragAction;
-                instance.DragTrigger_0.onDrag -= data.OnDragAction;
-                instance.DragTrigger_0.onEndDrag -= data.OnEndDragAction;
                 // Уничтожаем созданную нами кнопку, чтобы избежать утечек памяти
                 if (data.FullscreenButton != null)
                 {
@@ -398,8 +462,19 @@ namespace ItemPreviewQoL.Patches
             var newButtonGO = UnityEngine.Object.Instantiate(originalButtonGO, originalButtonGO.transform.parent, false);
             newButtonGO.name = "FullscreenButton_Modded";
 
+
             // Позиция кнопки справа от кнопки закрытия
             newButtonGO.transform.localPosition = new Vector3(304.742f, 0, 0);
+
+            //#region Tyfon
+            //int steps = 4; // Количество шагов для смещения иконки    
+            //Button resizeButton = instance.transform.Find("Inner/Caption Panel/Restore")?.GetComponent<Button>();
+            //if (resizeButton == null || !resizeButton.IsActive())
+            //{
+            //    steps = 3;
+            //}
+            //newButtonGO.transform.localPosition = new Vector3(originalButtonGO.transform.localPosition.x - steps * (((RectTransform)originalButtonGO.transform).rect.width + 3), originalButtonGO.transform.localPosition.y, originalButtonGO.transform.localPosition.z);
+            //#endregion
 
             // Стилизация фона кнопки
             var backgroundImage = newButtonGO.GetComponent<Image>();
@@ -437,7 +512,7 @@ namespace ItemPreviewQoL.Patches
 
         #region Обработчики событий мыши
 
-        private static void OnBeginDrag(ItemInfoWindowLabels instance, PointerEventData eventData)
+        public static void OnBeginDrag(ItemInfoWindowLabels instance, PointerEventData eventData)
         {
             if (!Plugin.EnablePlugin.Value) return;
             if (!_instanceData.TryGetValue(instance, out var data)) return;
@@ -459,7 +534,7 @@ namespace ItemPreviewQoL.Patches
             }
         }
 
-        private static void OnDrag(ItemInfoWindowLabels instance, PointerEventData eventData)
+        public static void OnDrag(ItemInfoWindowLabels instance, PointerEventData eventData)
         {
             if (!Plugin.EnablePlugin.Value) return;
             if (!_instanceData.TryGetValue(instance, out var data)) return;
@@ -479,7 +554,7 @@ namespace ItemPreviewQoL.Patches
             }
         }
 
-        private static void OnEndDrag(ItemInfoWindowLabels instance, PointerEventData eventData)
+        public static void OnEndDrag(ItemInfoWindowLabels instance)
         {
             if (!Plugin.EnablePlugin.Value) return;
             if (!_instanceData.TryGetValue(instance, out var data)) return;
@@ -500,18 +575,45 @@ namespace ItemPreviewQoL.Patches
                 var instance = kvp.Key;
                 var data = kvp.Value;
 
-                if (data.FullscreenButton != null)
+                // Устанавливаем активность игрового объекта кнопки
+                data.FullscreenButton?.gameObject.SetActive(isVisible);
+
+                #region Tyfon
+                if (Plugin.TyfonPresent())
                 {
-                    // Устанавливаем активность игрового объекта кнопки
-                    data.FullscreenButton.gameObject.SetActive(isVisible);
+                    LayoutElement previewPanel = instance.transform.Find("Inner/Contents/Preview Panel")?.GetComponent<LayoutElement>();
+                    if (previewPanel != null)
+                    {
+                        previewPanel.flexibleHeight = data._originalFlexibleHeight;
+                    }
+
+                    Transform сaptionPanel = instance.transform.Find("Inner/Caption Panel");
+                    foreach (Transform child in сaptionPanel)
+                    {
+                        if (child.name == "Close Button(Clone)")
+                        {
+                            child.gameObject.SetActive(true);
+                        }
+                        else if (child.name == "Restore")
+                        {
+                            Button restoreButton = child.GetComponent<Button>();
+                            if (restoreButton != null && restoreButton.IsActive() && !isVisible && data.IsFullscreen)
+                            {
+                                restoreButton.transform.localPosition = new Vector3(restoreButton.transform.localPosition.x - 2 * (((RectTransform)restoreButton.transform).rect.width + 3), restoreButton.transform.localPosition.y, restoreButton.transform.localPosition.z);
+                            }
+                        }
+                    }
+
                 }
+                #endregion
 
                 // Если плагин выключается (isVisible == false),
                 // то мы должны свернуть окно, если оно было развернуто.
                 if (!isVisible)
                 {
-                    data.ExitFullscreenIfActive(instance);
+                    data.ExitFullscreenIfActive();
                 }
+
             }
         }
 
@@ -527,6 +629,7 @@ namespace ItemPreviewQoL.Patches
         }
 
         #endregion
+
     }
 }
-//todo: сделать зум туда, где курсор находится?
+//todo: refactor

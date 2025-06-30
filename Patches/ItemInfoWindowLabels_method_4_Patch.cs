@@ -4,7 +4,7 @@ using HarmonyLib;
 using JBOBYH_ItemPreviewQoL;
 using System.Reflection;
 
-namespace ItemPreviewQoL.Patches
+namespace JBOBYH_ItemPreviewQoL.Patches
 {
     /// <summary>
     /// Этот патч полностью отключает оригинальную игровую логику вращения предмета (метод method_4).

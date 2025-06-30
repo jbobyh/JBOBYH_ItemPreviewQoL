@@ -1,0 +1,50 @@
+﻿using EFT.UI;
+using HarmonyLib;
+using SPT.Reflection.Patching;
+using System.Reflection;
+using UnityEngine.UI;
+
+namespace JBOBYH_ItemPreviewQoL.Patches
+{
+    //todo: rename
+    public class HideTyfonButtonOnFullscreen : ModulePatch
+    {
+        protected override MethodBase GetTargetMethod() => AccessTools.Method(typeof(StretchArea), "OnDrag");
+
+        [HarmonyPriority(Priority.First)]
+        [PatchPrefix]
+        private static bool Prefix(StretchArea __instance)
+        {
+            if (__instance == null) return true;
+            ItemInfoWindowLabels itemInfoWindowLabels = __instance.GetComponentInParent<ItemInfoWindowLabels>();
+            if (itemInfoWindowLabels == null)
+            {
+                return true;
+            }
+            if (ItemPreviewInteractionManager._instanceData.TryGetValue(itemInfoWindowLabels, out PreviewInstanceData data))
+            {
+                if (data.IsFullscreen)
+                    return false;
+            }
+            return true;
+        }
+        [HarmonyPriority(Priority.Last)]
+        [PatchPostfix]
+        private static void Postfix(StretchArea __instance)
+        {
+            if (__instance == null || !Plugin.TyfonPresent()) return;
+            ItemInfoWindowLabels itemInfoWindowLabels = __instance.GetComponentInParent<ItemInfoWindowLabels>();
+            if (itemInfoWindowLabels == null)
+            {
+                return;
+            }
+            if (ItemPreviewInteractionManager._instanceData.TryGetValue(itemInfoWindowLabels, out PreviewInstanceData data))
+            {
+                if (!data.IsFullscreen)
+                    return;
+            }
+            Button resizeButton = itemInfoWindowLabels.transform.Find("Inner/Caption Panel/Restore")?.GetComponent<Button>();
+            resizeButton?.gameObject.SetActive(false);
+        }
+    }
+}

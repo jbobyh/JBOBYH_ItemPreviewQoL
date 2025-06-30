@@ -31,7 +31,7 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <PropertyGroup>
-    <LangVersion>9.0</LangVersion>
+    <LangVersion>12.0</LangVersion>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="Assembly-CSharp, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL">
@@ -78,6 +78,10 @@
       <HintPath>..\..\EscapeFromTarkov_Data\Managed\Sirenix.Serialization.dll</HintPath>
       <Private>False</Private>
     </Reference>
+    <Reference Include="Tyfon.UIFixes">
+      <HintPath>..\..\BepInEx\plugins\Tyfon.UIFixes.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
     <Reference Include="Unity.TextMeshPro, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\EscapeFromTarkov_Data\Managed\Unity.TextMeshPro.dll</HintPath>
@@ -121,11 +125,13 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Patches\HideTyfonButtonOnFullscreen.cs" />
     <Compile Include="Patches\InfoWindow_Close_Patch.cs" />
     <Compile Include="Patches\InfoWindow_OnPointerClick_Patch.cs" />
     <Compile Include="Patches\ItemInfoWindowLabels_method_4_Patch.cs" />
     <Compile Include="Patches\ItemInfoWindowLabels_Show_Patch.cs" />
     <Compile Include="Manager.cs" />
+    <Compile Include="Patches\PrepatchDragTrigger.cs" />
     <Compile Include="Patches\WeaponPreviewZoomPatch.cs" />
     <Compile Include="Plugin.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

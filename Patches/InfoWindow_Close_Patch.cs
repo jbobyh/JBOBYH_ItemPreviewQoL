@@ -3,7 +3,7 @@ using SPT.Reflection.Patching;
 using HarmonyLib;
 using System.Reflection;
 
-namespace ItemPreviewQoL.Patches
+namespace JBOBYH_ItemPreviewQoL.Patches
 {
     /// <summary>
     /// Патчит метод Close в базовом классе окна InfoWindow.

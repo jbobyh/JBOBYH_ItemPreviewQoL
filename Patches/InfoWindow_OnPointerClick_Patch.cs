@@ -5,7 +5,7 @@ using JBOBYH_ItemPreviewQoL;
 using UnityEngine.EventSystems;
 using System.Reflection;
 
-namespace ItemPreviewQoL.Patches
+namespace JBOBYH_ItemPreviewQoL.Patches
 {
     /// <summary>
     /// Патчит метод OnPointerClick в базовом классе окна InfoWindow.

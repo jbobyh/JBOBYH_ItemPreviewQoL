@@ -5,7 +5,7 @@ using SPT.Reflection.Patching;
 using System.Reflection;
 using UnityEngine;
 
-namespace ItemPreviewQoL.Patches
+namespace JBOBYH_ItemPreviewQoL.Patches
 {
     /// <summary>
     /// Патчит метод WeaponPreview.Zoom, чтобы уменьшить скорость масштабирования колесом мыши.

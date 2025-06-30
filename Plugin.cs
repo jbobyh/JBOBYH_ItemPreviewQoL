@@ -1,16 +1,22 @@
 ﻿using BepInEx;
+using BepInEx.Bootstrap;
 using BepInEx.Configuration;
-using ItemPreviewQoL.Patches;
+using BepInEx.Logging;
+using JBOBYH_ItemPreviewQoL.Patches;
 using System;
 
 namespace JBOBYH_ItemPreviewQoL
 {
-    [BepInPlugin("jbobyh.itempreviewqol", "Item Preview QoL", "1.0.0")]
+    [BepInDependency("Tyfon.UIFixes", BepInDependency.DependencyFlags.SoftDependency)]
+    [BepInPlugin("jbobyh.itempreviewqol", "Item Preview QoL", "1.1.0")]
     public class Plugin : BaseUnityPlugin
     {
         public static ConfigEntry<bool> EnablePlugin;
+        public static ManualLogSource LogSource;
         private void Awake()
         {
+            LogSource = Logger;
+
             EnablePlugin = Config.Bind(
                 "General",
                 "Enable Plugin",
@@ -27,6 +33,8 @@ namespace JBOBYH_ItemPreviewQoL
                 new ItemInfoWindowLabels_Show_Patch().Enable();
                 new InfoWindow_OnPointerClick_Patch().Enable();
                 new InfoWindow_Close_Patch().Enable();
+                PrepatchDragTrigger.Enable();
+                new HideTyfonButtonOnFullscreen().Enable();
 
                 Logger.LogInfo("[Item Preview QoL] Plugin loaded!");
             }
@@ -48,5 +56,26 @@ namespace JBOBYH_ItemPreviewQoL
             // Отписываемся от события при выгрузке плагина
             EnablePlugin.SettingChanged -= OnEnablePluginChanged;
         }
+
+
+        private static bool? IsTyfonPresent;
+
+        public static bool TyfonPresent()
+        {
+            if (!IsTyfonPresent.HasValue)
+            {
+                if (Chainloader.PluginInfos.TryGetValue("Tyfon.UIFixes", out _))
+                {
+                    IsTyfonPresent = true;
+                }
+                else
+                {
+                    IsTyfonPresent = false;
+                }
+            }
+
+            return IsTyfonPresent.Value;
+        }
+
     }
 }
