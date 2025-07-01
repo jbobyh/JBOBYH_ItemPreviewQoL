@@ -13,7 +13,7 @@ using UnityEngine.EventSystems;
 
 namespace JBOBYH_ItemPreviewQoL.Patches
 {
-    public static class PrepatchDragTrigger
+    public static class DragTrigger_Patch
     {
         private static ItemInfoWindowLabels _currentWindow;
         public static void Enable()

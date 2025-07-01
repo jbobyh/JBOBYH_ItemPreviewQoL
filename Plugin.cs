@@ -28,13 +28,14 @@ namespace JBOBYH_ItemPreviewQoL
 
             try
             {
-                new WeaponPreviewZoomPatch().Enable();
+                new WeaponPreview_Zoom_Patch().Enable();
                 new ItemInfoWindowLabels_method_4_Patch().Enable();
                 new ItemInfoWindowLabels_Show_Patch().Enable();
                 new InfoWindow_OnPointerClick_Patch().Enable();
                 new InfoWindow_Close_Patch().Enable();
-                PrepatchDragTrigger.Enable();
-                new HideTyfonButtonOnFullscreen().Enable();
+                DragTrigger_Patch.Enable();
+                new StretchArea_OnDrag_Patch().Enable();
+                new PatchItemSpecificationsPanel().Enable();
 
                 Logger.LogInfo("[Item Preview QoL] Plugin loaded!");
             }

@@ -10,7 +10,7 @@ namespace JBOBYH_ItemPreviewQoL.Patches
     /// <summary>
     /// Патчит метод WeaponPreview.Zoom, чтобы уменьшить скорость масштабирования колесом мыши.
     /// </summary>
-    internal class WeaponPreviewZoomPatch : ModulePatch
+    internal class WeaponPreview_Zoom_Patch : ModulePatch
     {
         protected override MethodBase GetTargetMethod()
         {

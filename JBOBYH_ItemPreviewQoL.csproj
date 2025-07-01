@@ -100,6 +100,10 @@
       <HintPath>..\..\EscapeFromTarkov_Data\Managed\UnityEngine.CoreModule.dll</HintPath>
       <Private>False</Private>
     </Reference>
+    <Reference Include="UnityEngine.ImageConversionModule">
+      <HintPath>..\..\EscapeFromTarkov_Data\Managed\UnityEngine.ImageConversionModule.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
     <Reference Include="UnityEngine.IMGUIModule, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\EscapeFromTarkov_Data\Managed\UnityEngine.IMGUIModule.dll</HintPath>
@@ -125,14 +129,15 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Patches\HideTyfonButtonOnFullscreen.cs" />
+    <Compile Include="Patches\StretchArea_OnDrag_Patch.cs" />
     <Compile Include="Patches\InfoWindow_Close_Patch.cs" />
     <Compile Include="Patches\InfoWindow_OnPointerClick_Patch.cs" />
     <Compile Include="Patches\ItemInfoWindowLabels_method_4_Patch.cs" />
     <Compile Include="Patches\ItemInfoWindowLabels_Show_Patch.cs" />
     <Compile Include="Manager.cs" />
-    <Compile Include="Patches\PrepatchDragTrigger.cs" />
-    <Compile Include="Patches\WeaponPreviewZoomPatch.cs" />
+    <Compile Include="Patches\ItemSpecificationsPanelPatch.cs" />
+    <Compile Include="Patches\DragTrigger_Patch.cs" />
+    <Compile Include="Patches\WeaponPreview_Zoom_Patch.cs" />
     <Compile Include="Plugin.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

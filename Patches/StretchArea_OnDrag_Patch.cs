@@ -6,8 +6,7 @@ using UnityEngine.UI;
 
 namespace JBOBYH_ItemPreviewQoL.Patches
 {
-    //todo: rename
-    public class HideTyfonButtonOnFullscreen : ModulePatch
+    public class StretchArea_OnDrag_Patch : ModulePatch
     {
         protected override MethodBase GetTargetMethod() => AccessTools.Method(typeof(StretchArea), "OnDrag");
 

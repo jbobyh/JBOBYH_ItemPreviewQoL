@@ -1,14 +1,14 @@
-﻿using EFT.UI;
+﻿using BepInEx;
+using EFT.Communications;
+using EFT.UI;
 using EFT.UI.WeaponModding;
 using HarmonyLib;
 using JBOBYH_ItemPreviewQoL;
 using System;
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.Events;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
-using UnityExplorer.UI.Panels;
 
 namespace JBOBYH_ItemPreviewQoL.Patches
 {
@@ -37,6 +37,7 @@ namespace JBOBYH_ItemPreviewQoL.Patches
         private List<Light> _lights;
         private CameraLightSwitcher _lightSwitcher;
         private Dictionary<Light, TransformState> _originalLightStates;
+        private readonly ItemInfoWindowLabels _instance;
 
         // Ссылка на главный компонент предпросмотра, из которого получаем все остальное
         private readonly WeaponPreview _weaponPreview;
@@ -119,14 +120,18 @@ namespace JBOBYH_ItemPreviewQoL.Patches
 
         private Vector3 _absoluteInitialPivotPosition;
 
-        public PreviewInstanceData(WeaponPreview weaponPreview) => _weaponPreview = weaponPreview;
+        public PreviewInstanceData(WeaponPreview weaponPreview, ItemInfoWindowLabels instance)
+        {
+            _weaponPreview = weaponPreview;
+            _instance = instance;
+        }
 
-        public void Initialize(ItemInfoWindowLabels instance)
+        public void Initialize()
         {
             // Получаем и кэшируем ссылку на RectTransform один раз
             if (_windowRectTransform == null)
             {
-                _windowRectTransform = instance.GetComponent<RectTransform>();
+                _windowRectTransform = _instance.GetComponent<RectTransform>();
             }
         }
         public void BringToFront()
@@ -214,16 +219,16 @@ namespace JBOBYH_ItemPreviewQoL.Patches
             }
         }
 
-        public void ToggleFullscreen(ItemInfoWindowLabels instance) 
+        public void ToggleFullscreen() 
         {
             var windowRect = _windowRectTransform;
 
             // Обращаемся к полям напрямую, без 'data.'
-            if (_sizeFitter == null) _sizeFitter = instance.GetComponent<ContentSizeFitter>();
+            if (_sizeFitter == null) _sizeFitter = _instance.GetComponent<ContentSizeFitter>();
 
             if (DescriptionPanelGO == null)
             {
-                var descriptionTransform = instance.transform.Find("Inner/Contents/DescriptionPanel");
+                var descriptionTransform = _instance.transform.Find("Inner/Contents/DescriptionPanel");
                 if (descriptionTransform != null)
                 {
                     DescriptionPanelGO = descriptionTransform.gameObject;
@@ -242,14 +247,14 @@ namespace JBOBYH_ItemPreviewQoL.Patches
 
                 if (Plugin.TyfonPresent())
                 {
-                    LayoutElement previewPanel = instance.transform.Find("Inner/Contents/Preview Panel")?.GetComponent<LayoutElement>();
+                    LayoutElement previewPanel = _instance.transform.Find("Inner/Contents/Preview Panel")?.GetComponent<LayoutElement>();
                     if (previewPanel != null)
                     {
                         _originalFlexibleHeight = previewPanel.flexibleHeight;
                         previewPanel.flexibleHeight = 1;
                     }
 
-                    Transform сaptionPanel = instance.transform.Find("Inner/Caption Panel");
+                    Transform сaptionPanel = _instance.transform.Find("Inner/Caption Panel");
                     foreach (Transform child in сaptionPanel)
                     {
                         if (child.name == "Close Button(Clone)")
@@ -263,7 +268,7 @@ namespace JBOBYH_ItemPreviewQoL.Patches
                             {
                                 restoreButton.onClick.AddListener(() =>
                                 {
-                                    if (ItemPreviewInteractionManager._instanceData.TryGetValue(instance, out PreviewInstanceData data))
+                                    if (ItemPreviewInteractionManager._instanceData.TryGetValue(_instance, out PreviewInstanceData data))
                                     {
                                         if (data.IsFullscreen)
                                         {
@@ -310,13 +315,13 @@ namespace JBOBYH_ItemPreviewQoL.Patches
 
                 if (Plugin.TyfonPresent())
                 {
-                    LayoutElement previewPanel = instance.transform.Find("Inner/Contents/Preview Panel")?.GetComponent<LayoutElement>();
+                    LayoutElement previewPanel = _instance.transform.Find("Inner/Contents/Preview Panel")?.GetComponent<LayoutElement>();
                     if (previewPanel != null)
                     {
                         previewPanel.flexibleHeight = _originalFlexibleHeight;
                     }
 
-                    Transform сaptionPanel = instance.transform.Find("Inner/Caption Panel");
+                    Transform сaptionPanel = _instance.transform.Find("Inner/Caption Panel");
                     foreach (Transform child in сaptionPanel)
                     {
                         if (child.name == "Close Button(Clone)")
@@ -422,8 +427,8 @@ namespace JBOBYH_ItemPreviewQoL.Patches
         {
             if (_instanceData.ContainsKey(instance)) return;
 
-            var data = new PreviewInstanceData(weaponPreview);
-            data.Initialize(instance);
+            var data = new PreviewInstanceData(weaponPreview, instance);
+            data.Initialize();
 
 
             _instanceData[instance] = data;
@@ -466,15 +471,6 @@ namespace JBOBYH_ItemPreviewQoL.Patches
             // Позиция кнопки справа от кнопки закрытия
             newButtonGO.transform.localPosition = new Vector3(304.742f, 0, 0);
 
-            //#region Tyfon
-            //int steps = 4; // Количество шагов для смещения иконки    
-            //Button resizeButton = instance.transform.Find("Inner/Caption Panel/Restore")?.GetComponent<Button>();
-            //if (resizeButton == null || !resizeButton.IsActive())
-            //{
-            //    steps = 3;
-            //}
-            //newButtonGO.transform.localPosition = new Vector3(originalButtonGO.transform.localPosition.x - steps * (((RectTransform)originalButtonGO.transform).rect.width + 3), originalButtonGO.transform.localPosition.y, originalButtonGO.transform.localPosition.z);
-            //#endregion
 
             // Стилизация фона кнопки
             var backgroundImage = newButtonGO.GetComponent<Image>();
@@ -507,7 +503,7 @@ namespace JBOBYH_ItemPreviewQoL.Patches
 
             data.FullscreenButton = newButton;
             newButton.onClick.RemoveAllListeners();
-            newButton.onClick.AddListener(() => data.ToggleFullscreen(instance));
+            newButton.onClick.AddListener(() => data.ToggleFullscreen());
         }
 
         #region Обработчики событий мыши
@@ -624,12 +620,14 @@ namespace JBOBYH_ItemPreviewQoL.Patches
         {
             if (_instanceData.TryGetValue(instance, out var data))
             {
-                data.ToggleFullscreen(instance);
+                data.ToggleFullscreen();
             }
         }
 
         #endregion
 
     }
+
+
 }
 //todo: refactor
