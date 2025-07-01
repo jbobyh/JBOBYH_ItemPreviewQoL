@@ -23,7 +23,11 @@ namespace JBOBYH_ItemPreviewQoL.Patches
             if (ItemPreviewInteractionManager._instanceData.TryGetValue(itemInfoWindowLabels, out PreviewInstanceData data))
             {
                 if (data.IsFullscreen)
+                {
                     return false;
+                }
+                ItemPreviewInteractionManager.restoreButtonShouldBeVisibleGlobal = true;
+                data.restoreButtonShouldBeVisible = true; 
             }
             return true;
         }
@@ -37,13 +41,17 @@ namespace JBOBYH_ItemPreviewQoL.Patches
             {
                 return;
             }
+            //resizeButton здесь всегда включается другим модом, надо решить когда выключать
+            //когда фуллскрин
+            //когда кнопка не была включена в окне
             if (ItemPreviewInteractionManager._instanceData.TryGetValue(itemInfoWindowLabels, out PreviewInstanceData data))
             {
-                if (!data.IsFullscreen)
-                    return;
+                if (data.IsFullscreen && !data.restoreButtonShouldBeVisible && !ItemPreviewInteractionManager.restoreButtonShouldBeVisibleGlobal)
+                {
+                    Button resizeButton = itemInfoWindowLabels.transform.Find("Inner/Caption Panel/Restore")?.GetComponent<Button>();
+                    resizeButton?.gameObject.SetActive(false);
+                }
             }
-            Button resizeButton = itemInfoWindowLabels.transform.Find("Inner/Caption Panel/Restore")?.GetComponent<Button>();
-            resizeButton?.gameObject.SetActive(false);
         }
     }
 }

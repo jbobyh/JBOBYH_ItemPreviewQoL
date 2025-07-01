@@ -39,9 +39,7 @@ namespace JBOBYH_ItemPreviewQoL.Patches
             {
                 if (_currentWindow != null)
                 {
-                    if (__originalMethod.Name.Contains("OnBeginDrag"))
-                        ItemPreviewInteractionManager.OnBeginDrag(_currentWindow, eventData);
-                    else if (__originalMethod.Name.Contains("OnDrag"))
+                    if (__originalMethod.Name.Contains("OnDrag"))
                         ItemPreviewInteractionManager.OnDrag(_currentWindow, eventData);
                     else if (__originalMethod.Name.Contains("OnEndDrag"))
                     {

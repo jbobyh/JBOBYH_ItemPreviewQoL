@@ -38,6 +38,8 @@ namespace JBOBYH_ItemPreviewQoL.Patches
         private CameraLightSwitcher _lightSwitcher;
         private Dictionary<Light, TransformState> _originalLightStates;
         private readonly ItemInfoWindowLabels _instance;
+        public LayoutElement _tyfonPreviewPanelLayout;
+        public Transform _tyfonCaptionPanel;
 
         // Ссылка на главный компонент предпросмотра, из которого получаем все остальное
         private readonly WeaponPreview _weaponPreview;
@@ -46,6 +48,8 @@ namespace JBOBYH_ItemPreviewQoL.Patches
         public GameObject DescriptionPanelGO;
         public Button FullscreenButton;
         public bool IsFullscreen = false;
+
+        public bool restoreButtonShouldBeVisible;
 
         // Поля для сохранения оригинального состояния RectTransform при переходе в полноэкранный режим
         private Vector2 _originalAnchorMin;
@@ -132,6 +136,23 @@ namespace JBOBYH_ItemPreviewQoL.Patches
             if (_windowRectTransform == null)
             {
                 _windowRectTransform = _instance.GetComponent<RectTransform>();
+            }
+
+            // Кешируем другие часто используемые компоненты
+            if (DescriptionPanelGO == null)
+            {
+                var descriptionTransform = _instance.transform.Find("Inner/Contents/DescriptionPanel");
+                if (descriptionTransform != null)
+                {
+                    DescriptionPanelGO = descriptionTransform.gameObject;
+                }
+            }
+
+            // Кешируем компоненты для интеграции с Tyfon
+            if (Plugin.TyfonPresent())
+            {
+                _tyfonPreviewPanelLayout = _instance.transform.Find("Inner/Contents/Preview Panel")?.GetComponent<LayoutElement>();
+                _tyfonCaptionPanel = _instance.transform.Find("Inner/Caption Panel");
             }
         }
         public void BringToFront()
@@ -221,8 +242,6 @@ namespace JBOBYH_ItemPreviewQoL.Patches
 
         public void ToggleFullscreen() 
         {
-            var windowRect = _windowRectTransform;
-
             // Обращаемся к полям напрямую, без 'data.'
             if (_sizeFitter == null) _sizeFitter = _instance.GetComponent<ContentSizeFitter>();
 
@@ -235,26 +254,33 @@ namespace JBOBYH_ItemPreviewQoL.Patches
                 }
             }
 
-            if (windowRect == null || _sizeFitter == null) return;
+            if (_windowRectTransform == null || _sizeFitter == null) return;
 
-            IsFullscreen = !IsFullscreen;
 
             DescriptionPanelGO?.SetActive(!IsFullscreen);
 
-            if (IsFullscreen)
+            if (!IsFullscreen)
             {
                 #region Tyfon
 
                 if (Plugin.TyfonPresent())
                 {
-                    LayoutElement previewPanel = _instance.transform.Find("Inner/Contents/Preview Panel")?.GetComponent<LayoutElement>();
+                    LayoutElement previewPanel = _tyfonPreviewPanelLayout?.GetComponent<LayoutElement>();
                     if (previewPanel != null)
                     {
                         _originalFlexibleHeight = previewPanel.flexibleHeight;
                         previewPanel.flexibleHeight = 1;
                     }
-
-                    Transform сaptionPanel = _instance.transform.Find("Inner/Caption Panel");
+                    Transform сaptionPanel = null;
+                    if (_tyfonCaptionPanel != null)
+                    {
+                        сaptionPanel = _tyfonCaptionPanel;
+                    }
+                    else
+                    {
+                        // Если Tyfon не установлен, ищем Caption Panel в другом месте
+                        сaptionPanel = _instance.transform.Find("Inner/Caption Panel");
+                    }
                     foreach (Transform child in сaptionPanel)
                     {
                         if (child.name == "Close Button(Clone)")
@@ -268,24 +294,23 @@ namespace JBOBYH_ItemPreviewQoL.Patches
                             {
                                 restoreButton.onClick.AddListener(() =>
                                 {
-                                    if (ItemPreviewInteractionManager._instanceData.TryGetValue(_instance, out PreviewInstanceData data))
+                                    if (IsFullscreen)
                                     {
-                                        if (data.IsFullscreen)
+                                        foreach (Transform child in сaptionPanel)
                                         {
-                                            foreach (Transform child in сaptionPanel)
+                                            if (child.name == "Close Button(Clone)")
                                             {
-                                                if (child.name == "Close Button(Clone)")
-                                                {
-                                                    child.gameObject.SetActive(true);
-                                                }
-                                                else if (child.name == "Restore")
-                                                {
-                                                    restoreButton.transform.localPosition = new Vector3(restoreButton.transform.localPosition.x - 2 * (((RectTransform)restoreButton.transform).rect.width + 3), restoreButton.transform.localPosition.y, restoreButton.transform.localPosition.z);
-                                                }
+                                                child.gameObject.SetActive(true);
                                             }
-                                            data.ExitFullscreenIfActive();
+                                            else if (child.name == "Restore")
+                                            {
+                                                restoreButton.transform.localPosition = new Vector3(restoreButton.transform.localPosition.x - 2 * (((RectTransform)restoreButton.transform).rect.width + 3), restoreButton.transform.localPosition.y, restoreButton.transform.localPosition.z);
+                                            }
                                         }
+                                        ExitFullscreenIfActive();
                                     }
+                                    restoreButtonShouldBeVisible = false;
+                                    ItemPreviewInteractionManager.restoreButtonShouldBeVisibleGlobal = false;
                                 });
                                 restoreButton.transform.localPosition = new Vector3(restoreButton.transform.localPosition.x + 2 * (((RectTransform)restoreButton.transform).rect.width + 3), restoreButton.transform.localPosition.y, restoreButton.transform.localPosition.z);
                             }
@@ -299,15 +324,19 @@ namespace JBOBYH_ItemPreviewQoL.Patches
                 BringToFront();
                 _sizeFitter.enabled = false;
 
-                _originalAnchorMin = windowRect.anchorMin;
-                _originalAnchorMax = windowRect.anchorMax;
-                _originalAnchoredPosition = windowRect.anchoredPosition;
-                _originalSizeDelta = windowRect.sizeDelta;
+                _originalAnchorMin = _windowRectTransform.anchorMin;
+                _originalAnchorMax = _windowRectTransform.anchorMax;
+                _originalAnchoredPosition = _windowRectTransform.anchoredPosition;
+                _originalSizeDelta = _windowRectTransform.sizeDelta;
 
-                windowRect.anchorMin = Vector2.zero;
-                windowRect.anchorMax = Vector2.one;
-                windowRect.offsetMin = new Vector2(0, 35);
-                windowRect.offsetMax = new Vector2(0, 0);
+                _windowRectTransform.anchorMin = Vector2.zero;
+                _windowRectTransform.anchorMax = Vector2.one;
+                _windowRectTransform.offsetMin = new Vector2(0, 35);
+                _windowRectTransform.offsetMax = new Vector2(0, 0);
+
+                DescriptionPanelGO?.SetActive(false);
+
+                IsFullscreen = true;
             }
             else
             {
@@ -315,13 +344,31 @@ namespace JBOBYH_ItemPreviewQoL.Patches
 
                 if (Plugin.TyfonPresent())
                 {
-                    LayoutElement previewPanel = _instance.transform.Find("Inner/Contents/Preview Panel")?.GetComponent<LayoutElement>();
-                    if (previewPanel != null)
+                    LayoutElement layoutElement = null;
+                    if (_tyfonPreviewPanelLayout != null)
                     {
-                        previewPanel.flexibleHeight = _originalFlexibleHeight;
+                        layoutElement = _tyfonPreviewPanelLayout?.GetComponent<LayoutElement>();
+                    }
+                    else
+                    {
+                        // Если Tyfon не установлен, ищем LayoutElement в другом месте
+                        layoutElement = _instance.transform.Find("Inner/Contents/Preview Panel")?.GetComponent<LayoutElement>();
+                    }
+                    if (layoutElement != null)
+                    {
+                        layoutElement.flexibleHeight = _originalFlexibleHeight;
                     }
 
-                    Transform сaptionPanel = _instance.transform.Find("Inner/Caption Panel");
+                    Transform сaptionPanel = null;
+                    if (_tyfonCaptionPanel != null)
+                    {
+                        сaptionPanel = _tyfonCaptionPanel;
+                    }
+                    else
+                    {
+                        // Если Tyfon не установлен, ищем Caption Panel в другом месте
+                        сaptionPanel = _instance.transform.Find("Inner/Caption Panel");
+                    }
                     foreach (Transform child in сaptionPanel)
                     {
                         if (child.name == "Close Button(Clone)")
@@ -342,15 +389,7 @@ namespace JBOBYH_ItemPreviewQoL.Patches
 
                 #endregion
 
-                _sizeFitter.enabled = true;
-
-                // --- ВОССТАНАВЛИВАЕМ ИСХОДНЫЙ РАЗМЕР ---
-                windowRect.anchorMin = _originalAnchorMin;
-                windowRect.anchorMax = _originalAnchorMax;
-                windowRect.anchoredPosition = _originalAnchoredPosition;
-                windowRect.sizeDelta = _originalSizeDelta;
-
-
+                RestoreWindowedMode();
             }
         }
 
@@ -359,27 +398,33 @@ namespace JBOBYH_ItemPreviewQoL.Patches
         /// </summary>
         public void ExitFullscreenIfActive()
         {
+            if (IsFullscreen)
+            {
+                RestoreWindowedMode();
+            }
+        }
+
+        private void RestoreWindowedMode()
+        {
             // Если мы не в полноэкранном режиме, ничего не делаем
             if (!IsFullscreen) return;
 
-            // Здесь мы по сути дублируем логику из "else" блока метода ToggleFullscreen
-            var windowRect = _windowRectTransform;
-            if (windowRect == null) return;
-
-            // --- ВОССТАНАВЛИВАЕМ ИСХОДНЫЙ РАЗМЕР ---
-            windowRect.anchorMin = _originalAnchorMin;
-            windowRect.anchorMax = _originalAnchorMax;
-            windowRect.anchoredPosition = _originalAnchoredPosition;
-            windowRect.sizeDelta = _originalSizeDelta;
+            if (_windowRectTransform == null) return;
 
             if (_sizeFitter != null)
             {
                 _sizeFitter.enabled = true;
             }
 
+            // --- ВОССТАНАВЛИВАЕМ ИСХОДНЫЙ РАЗМЕР ---
+            _windowRectTransform.anchorMin = _originalAnchorMin;
+            _windowRectTransform.anchorMax = _originalAnchorMax;
+            _windowRectTransform.anchoredPosition = _originalAnchoredPosition;
+            _windowRectTransform.sizeDelta = _originalSizeDelta;
+
+
             DescriptionPanelGO?.SetActive(true);
 
-            // И самое главное - обновляем флаг состояния
             IsFullscreen = false;
         }
 
@@ -419,6 +464,8 @@ namespace JBOBYH_ItemPreviewQoL.Patches
 
         // Словарь для хранения данных по каждому экземпляру окна. Ключ - сам компонент окна.
         public static readonly Dictionary<ItemInfoWindowLabels, PreviewInstanceData> _instanceData = [];
+
+        public static bool restoreButtonShouldBeVisibleGlobal = false;
 
         /// <summary>
         /// Регистрирует новый экземпляр окна, когда оно открывается.
@@ -469,8 +516,12 @@ namespace JBOBYH_ItemPreviewQoL.Patches
 
 
             // Позиция кнопки справа от кнопки закрытия
-            newButtonGO.transform.localPosition = new Vector3(304.742f, 0, 0);
+            //newButtonGO.transform.localPosition = new Vector3(304.742f, 0, 0);
+            var originalButtonRect = (RectTransform)originalButtonGO.transform;
+            var step = originalButtonRect.rect.width + 3f; // 3f - это стандартный отступ между кнопками в заголовке
 
+            // Смещаем кнопку влево от кнопки "Закрыть"
+            newButtonGO.transform.localPosition = originalButtonGO.transform.localPosition - new Vector3(step, 0, 0);
 
             // Стилизация фона кнопки
             var backgroundImage = newButtonGO.GetComponent<Image>();
@@ -577,13 +628,30 @@ namespace JBOBYH_ItemPreviewQoL.Patches
                 #region Tyfon
                 if (Plugin.TyfonPresent())
                 {
-                    LayoutElement previewPanel = instance.transform.Find("Inner/Contents/Preview Panel")?.GetComponent<LayoutElement>();
-                    if (previewPanel != null)
+                    LayoutElement layoutElement = null;
+                    if (data._tyfonPreviewPanelLayout != null)
                     {
-                        previewPanel.flexibleHeight = data._originalFlexibleHeight;
+                        layoutElement = data._tyfonPreviewPanelLayout?.GetComponent<LayoutElement>();
                     }
-
-                    Transform сaptionPanel = instance.transform.Find("Inner/Caption Panel");
+                    else
+                    {
+                        // Если Tyfon не установлен, ищем LayoutElement в другом месте
+                        layoutElement = instance.transform.Find("Inner/Contents/Preview Panel")?.GetComponent<LayoutElement>();
+                    }
+                    if (layoutElement != null)
+                    {
+                        layoutElement.flexibleHeight = data._originalFlexibleHeight;
+                    }
+                    Transform сaptionPanel = null;
+                    if (data._tyfonCaptionPanel != null)
+                    {
+                        сaptionPanel = data._tyfonCaptionPanel;
+                    }
+                    else
+                    {
+                        // Если Tyfon не установлен, ищем Caption Panel в другом месте
+                        сaptionPanel = instance.transform.Find("Inner/Caption Panel");
+                    }
                     foreach (Transform child in сaptionPanel)
                     {
                         if (child.name == "Close Button(Clone)")
