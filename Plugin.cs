@@ -8,7 +8,7 @@ using System;
 namespace JBOBYH_ItemPreviewQoL
 {
     [BepInDependency("Tyfon.UIFixes", BepInDependency.DependencyFlags.SoftDependency)]
-    [BepInPlugin(PluginInfo.PLUGIN_NAME, PluginInfo.PLUGIN_NAME, PluginInfo.PLUGIN_VERSION)]
+    [BepInPlugin(PluginInfo.PLUGIN_GUID, PluginInfo.PLUGIN_NAME, PluginInfo.PLUGIN_VERSION)]
     public class Plugin : BaseUnityPlugin
     {
         public static ConfigEntry<bool> EnablePlugin;
@@ -22,7 +22,7 @@ namespace JBOBYH_ItemPreviewQoL
                 "General",
                 "Enable Plugin",
                 true,
-                "Enables or disables all features of this plugin."
+                "Enables or disables all features of this plugin." 
             );
             ShowScreenshotButton = Config.Bind(
                 "General",

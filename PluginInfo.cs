@@ -10,6 +10,6 @@ namespace JBOBYH_ItemPreviewQoL
     {
         public const string PLUGIN_GUID = "jbobyh.itempreviewqol";
         public const string PLUGIN_NAME = "Item Preview QoL";
-        public const string PLUGIN_VERSION = "1.1.2";
+        public const string PLUGIN_VERSION = "1.1.3";
     }
 }
