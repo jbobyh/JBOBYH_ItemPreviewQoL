@@ -20,7 +20,7 @@ namespace JBOBYH_ItemPreviewQoL.Patches
             {
                 return true;
             }
-            if (ItemPreviewInteractionManager._instanceData.TryGetValue(itemInfoWindowLabels, out PreviewInstanceData data))
+            if (ItemPreviewInteractionManager.AllInstanceData.TryGetValue(itemInfoWindowLabels, out PreviewInstanceData data))
             {
                 if (data.IsFullscreen)
                 {
@@ -44,7 +44,7 @@ namespace JBOBYH_ItemPreviewQoL.Patches
             //resizeButton здесь всегда включается другим модом, надо решить когда выключать
             //когда фуллскрин
             //когда кнопка не была включена в окне
-            if (ItemPreviewInteractionManager._instanceData.TryGetValue(itemInfoWindowLabels, out PreviewInstanceData data))
+            if (ItemPreviewInteractionManager.AllInstanceData.TryGetValue(itemInfoWindowLabels, out PreviewInstanceData data))
             {
                 if (data.IsFullscreen && !data.restoreButtonShouldBeVisible && !ItemPreviewInteractionManager.restoreButtonShouldBeVisibleGlobal)
                 {

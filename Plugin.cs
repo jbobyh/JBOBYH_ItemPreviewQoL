@@ -8,7 +8,7 @@ using System;
 namespace JBOBYH_ItemPreviewQoL
 {
     [BepInDependency("Tyfon.UIFixes", BepInDependency.DependencyFlags.SoftDependency)]
-    [BepInPlugin("jbobyh.itempreviewqol", "Item Preview QoL", "1.1.0")]
+    [BepInPlugin("jbobyh.itempreviewqol", "Item Preview QoL", "1.1.1")]
     public class Plugin : BaseUnityPlugin
     {
         public static ConfigEntry<bool> EnablePlugin;

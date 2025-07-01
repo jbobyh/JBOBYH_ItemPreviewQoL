@@ -463,7 +463,8 @@ namespace JBOBYH_ItemPreviewQoL.Patches
         private const float PanLimit = 0.3f;
 
         // Словарь для хранения данных по каждому экземпляру окна. Ключ - сам компонент окна.
-        public static readonly Dictionary<ItemInfoWindowLabels, PreviewInstanceData> _instanceData = [];
+        private static readonly Dictionary<ItemInfoWindowLabels, PreviewInstanceData> _instanceData = [];
+        public static IReadOnlyDictionary<ItemInfoWindowLabels, PreviewInstanceData> AllInstanceData => _instanceData;
 
         public static bool restoreButtonShouldBeVisibleGlobal = false;
 
