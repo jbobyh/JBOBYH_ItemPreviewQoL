@@ -8,10 +8,11 @@ using System;
 namespace JBOBYH_ItemPreviewQoL
 {
     [BepInDependency("Tyfon.UIFixes", BepInDependency.DependencyFlags.SoftDependency)]
-    [BepInPlugin("jbobyh.itempreviewqol", "Item Preview QoL", "1.1.1")]
+    [BepInPlugin(PluginInfo.PLUGIN_NAME, PluginInfo.PLUGIN_NAME, PluginInfo.PLUGIN_VERSION)]
     public class Plugin : BaseUnityPlugin
     {
         public static ConfigEntry<bool> EnablePlugin;
+        public static ConfigEntry<bool> ShowScreenshotButton;
         public static ManualLogSource LogSource;
         private void Awake()
         {
@@ -22,6 +23,12 @@ namespace JBOBYH_ItemPreviewQoL
                 "Enable Plugin",
                 true,
                 "Enables or disables all features of this plugin."
+            );
+            ShowScreenshotButton = Config.Bind(
+                "General",
+                "Show Screenshot Button",
+                true,
+                "Enables or disables the screenshot button in the item preview window."
             );
 
             EnablePlugin.SettingChanged += OnEnablePluginChanged;
@@ -35,7 +42,7 @@ namespace JBOBYH_ItemPreviewQoL
                 new InfoWindow_Close_Patch().Enable();
                 DragTrigger_Patch.Enable();
                 new StretchArea_OnDrag_Patch().Enable();
-                new PatchItemSpecificationsPanel().Enable();
+                new ItemSpecifications_Show_Patch().Enable();
 
                 Logger.LogInfo("[Item Preview QoL] Plugin loaded!");
             }

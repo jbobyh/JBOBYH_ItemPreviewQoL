@@ -135,10 +135,11 @@
     <Compile Include="Patches\ItemInfoWindowLabels_method_4_Patch.cs" />
     <Compile Include="Patches\ItemInfoWindowLabels_Show_Patch.cs" />
     <Compile Include="Manager.cs" />
-    <Compile Include="Patches\ItemSpecificationsPanelPatch.cs" />
+    <Compile Include="Patches\ItemSpecifications_Show_Patch.cs" />
     <Compile Include="Patches\DragTrigger_Patch.cs" />
     <Compile Include="Patches\WeaponPreview_Zoom_Patch.cs" />
     <Compile Include="Plugin.cs" />
+    <Compile Include="PluginInfo.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

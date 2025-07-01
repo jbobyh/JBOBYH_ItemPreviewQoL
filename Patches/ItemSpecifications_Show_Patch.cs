@@ -10,7 +10,7 @@ using UnityEngine.UI;
 
 namespace JBOBYH_ItemPreviewQoL.Patches
 {
-    internal class PatchItemSpecificationsPanel : ModulePatch
+    internal class ItemSpecifications_Show_Patch : ModulePatch
     {
         protected override MethodBase GetTargetMethod()
         {
@@ -20,6 +20,7 @@ namespace JBOBYH_ItemPreviewQoL.Patches
         [PatchPostfix]
         private static void Postfix(ItemSpecificationPanel __instance, InteractionButtonsContainer ____interactionButtonsContainer)
         {
+            if (!Plugin.ShowScreenshotButton.Value) return;
             SimpleContextMenuButton _buttonTemplate = (SimpleContextMenuButton)AccessTools.Field(typeof(InteractionButtonsContainer), "_buttonTemplate").GetValue(____interactionButtonsContainer);
             RectTransform _buttonsContainer = (RectTransform)AccessTools.Field(typeof(InteractionButtonsContainer), "_buttonsContainer").GetValue(____interactionButtonsContainer);
 
