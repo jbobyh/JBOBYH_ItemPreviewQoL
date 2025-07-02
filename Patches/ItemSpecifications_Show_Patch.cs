@@ -4,6 +4,7 @@ using HarmonyLib;
 using SPT.Reflection.Patching;
 using System;
 using System.IO;
+using System.Linq;
 using System.Reflection;
 using UnityEngine;
 using UnityEngine.UI;
@@ -24,27 +25,21 @@ namespace JBOBYH_ItemPreviewQoL.Patches
             SimpleContextMenuButton _buttonTemplate = (SimpleContextMenuButton)AccessTools.Field(typeof(InteractionButtonsContainer), "_buttonTemplate").GetValue(____interactionButtonsContainer);
             RectTransform _buttonsContainer = (RectTransform)AccessTools.Field(typeof(InteractionButtonsContainer), "_buttonsContainer").GetValue(____interactionButtonsContainer);
 
-            SimpleContextMenuButton newButton = ____interactionButtonsContainer.method_1("EXPORTFILE", "Screenshot", _buttonTemplate, _buttonsContainer, null,
+            SimpleContextMenuButton newButton = ____interactionButtonsContainer.method_1("SCREENSHOT", "Screenshot", _buttonTemplate, _buttonsContainer, null,
                 delegate
                 {
-                    Transform cameraImage = __instance.transform.Find("Inner/Contents/Preview Panel/Camera Image");
-                    if (cameraImage == null)
-                    {
-                        Plugin.LogSource?.LogError("Error. No cameraImage");
-                        NotificationManagerClass.DisplayMessageNotification("Error. No cameraImage", ENotificationDurationType.Default, ENotificationIconType.Alert, null);
-                        return;
-                    }
-
-                    RawImage rawImage = cameraImage.GetComponent<RawImage>();
+                    RawImage rawImage = __instance.GetComponentInChildren<RawImage>();
                     if (rawImage == null)
                     {
                         Plugin.LogSource?.LogError("Error. No rawImage");
-                        NotificationManagerClass.DisplayMessageNotification("Error. No rawImage", ENotificationDurationType.Default, ENotificationIconType.Alert, null);
+                        NotificationManagerClass.DisplayMessageNotification("Error 1. No rawImage", ENotificationDurationType.Default, ENotificationIconType.Alert, null);
                         return;
                     }
-
-                    string name = __instance.transform.Find("Inner/Caption Panel/Caption")?.GetComponent<CustomTextMeshProUGUI>()?.text;
-                    string path = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), "Escape from Tarkov", "Screenshots", $"{name} {EFTDateTimeClass.Now:yyyy-MM-dd[HH-mm-ss]}.png");
+                    string name = __instance.GetComponentsInChildren<CustomTextMeshProUGUI>().FirstOrDefault(t => t.name == "Caption")?.text;
+                    string safeName = string.Concat(name.Where(c => !Path.GetInvalidFileNameChars().Contains(c)));
+                    string folder = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), "Escape from Tarkov", "Screenshots");
+                    Directory.CreateDirectory(folder);
+                    string path = Path.Combine(folder, $"{safeName} {EFTDateTimeClass.Now:yyyy-MM-dd[HH-mm-ss]}.png");
                     if (CaptureFromRenderTexture(rawImage, path))
                     {
                         NotificationManagerClass.DisplayMessageNotification($"Screeshot saved: {path}", ENotificationDurationType.Default, ENotificationIconType.Default, null);
@@ -52,7 +47,7 @@ namespace JBOBYH_ItemPreviewQoL.Patches
                     else
                     {
                         Plugin.LogSource?.LogError("Error. Failed to save screenshot");
-                        NotificationManagerClass.DisplayMessageNotification("Error. Failed to save screenshot", ENotificationDurationType.Default, ENotificationIconType.Alert, null);
+                        NotificationManagerClass.DisplayMessageNotification("Error 2. Failed to save screenshot", ENotificationDurationType.Default, ENotificationIconType.Alert, null);
                     }
                 },
                 null, false, false);
@@ -68,6 +63,7 @@ namespace JBOBYH_ItemPreviewQoL.Patches
             Texture source = rawImage.texture;
             if (source is not RenderTexture renderTexture)
             {
+                NotificationManagerClass.DisplayMessageNotification("Error 3. Failed to save screenshot", ENotificationDurationType.Default, ENotificationIconType.Alert, null);
                 Plugin.LogSource?.LogError("Текстура в RawImage не является RenderTexture!");
                 // Можно добавить сюда логику для обычных Texture2D, если нужно
                 return false;
@@ -99,7 +95,9 @@ namespace JBOBYH_ItemPreviewQoL.Patches
             }
             catch (Exception ex)
             {
+                NotificationManagerClass.DisplayMessageNotification("Error 4. Failed to save screenshot", ENotificationDurationType.Default, ENotificationIconType.Alert, null);
                 Plugin.LogSource?.LogError($"Ошибка при сохранении скриншота: {ex.Message}");
+                Plugin.LogSource?.LogError($"{ex.StackTrace}");
                 return false;
             }
             finally
