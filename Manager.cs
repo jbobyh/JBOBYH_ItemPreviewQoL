@@ -460,7 +460,7 @@ namespace JBOBYH_ItemPreviewQoL.Patches
         // --- Настройки ---
         private const float BasePanSpeed = 0.001f;
         private const float RotationSpeed = 0.4f;
-        private const float PanLimit = 0.3f;
+        private const float PanLimit = 0.4f;
 
         // Словарь для хранения данных по каждому экземпляру окна. Ключ - сам компонент окна.
         private static readonly Dictionary<ItemInfoWindowLabels, PreviewInstanceData> _instanceData = [];
