@@ -146,6 +146,14 @@ namespace JBOBYH_ItemPreviewQoL.Patches
                 {
                     DescriptionPanelGO = descriptionTransform.gameObject;
                 }
+                else//handbook
+                {
+                    descriptionTransform = _instance.transform.Find("Contents/ItemInfo/DescriptionPanel");
+                    if (descriptionTransform != null)
+                    {
+                        DescriptionPanelGO = descriptionTransform.gameObject;
+                    }
+                }
             }
 
             // Кешируем компоненты для интеграции с Tyfon
@@ -473,7 +481,17 @@ namespace JBOBYH_ItemPreviewQoL.Patches
         /// </summary>
         public static void RegisterInstance(ItemInfoWindowLabels instance, WeaponPreview weaponPreview)
         {
-            if (_instanceData.ContainsKey(instance)) return;
+            if (_instanceData.ContainsKey(instance))
+            {
+                if (instance.name == "Description")//handbook
+                {
+                    _instanceData.Remove(instance);
+                }
+                else
+                {
+                    return;
+                }
+            }
 
             var data = new PreviewInstanceData(weaponPreview, instance);
             data.Initialize();

@@ -55,7 +55,7 @@ namespace JBOBYH_ItemPreviewQoL.Patches
                     if (instanceComp != null)
                     {
                         var currentWindow = instanceComp.GetComponentInParent<ItemInfoWindowLabels>();
-                        if (currentWindow != null && instanceComp.name == "Preview Panel")
+                        if (currentWindow != null && (instanceComp.name == "Preview Panel" || instanceComp.name == "Description"))
                         {
                             _currentWindow = currentWindow;
 
