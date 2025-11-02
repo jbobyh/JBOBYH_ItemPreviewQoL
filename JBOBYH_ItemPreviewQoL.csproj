@@ -129,7 +129,6 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Debug.cs" />
     <Compile Include="Patches\StretchArea_OnDrag_Patch.cs" />
     <Compile Include="Patches\InfoWindow_Close_Patch.cs" />
     <Compile Include="Patches\InfoWindow_OnPointerClick_Patch.cs" />
@@ -145,6 +144,6 @@
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
-    <PostBuildEvent>copy "$(TargetPath)" "$(ProjectDir)\..\..\..\SPTLTS\BepInEx\plugins\JBOBYH\$(TargetFileName)"</PostBuildEvent>
+    <PostBuildEvent>copy "$(TargetPath)" "$(ProjectDir)\..\..\..\SPT-4.0\BepInEx\plugins\JBOBYH\$(TargetFileName)"</PostBuildEvent>
   </PropertyGroup>
 </Project>

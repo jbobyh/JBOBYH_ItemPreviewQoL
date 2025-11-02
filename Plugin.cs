@@ -35,9 +35,9 @@ namespace JBOBYH_ItemPreviewQoL
 
             try
             {
-                new WeaponPreview_Zoom_Patch().Enable();
-                new ItemInfoWindowLabels_method_4_Patch().Enable();
-                new ItemInfoWindowLabels_Show_Patch().Enable();
+                new WeaponPreview_Zoom_Patch().Enable();//улучшаем зум в превью оружия
+                new ItemInfoWindowLabels_method_4_Patch().Enable();//отключаем оригинальное вращение
+                new ItemInfoWindowLabels_Show_Patch().Enable();//показываем превью по двойному клику
                 new InfoWindow_OnPointerClick_Patch().Enable();
                 new InfoWindow_Close_Patch().Enable();
                 DragTrigger_Patch.Enable();

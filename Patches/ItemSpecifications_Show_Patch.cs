@@ -53,7 +53,7 @@ namespace JBOBYH_ItemPreviewQoL.Patches
                 null, false, false);
 
 
-            // make the new button disposable
+            // make the new button disposable 
             ____interactionButtonsContainer.method_5(newButton);
         }
 
