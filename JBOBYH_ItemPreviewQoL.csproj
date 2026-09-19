@@ -5,7 +5,7 @@
     <Nullable>disable</Nullable>
     <Authors>JBOBYH</Authors>
     <Copyright>Copyright (c) JBOBYH 2026</Copyright>
-    <AssemblyVersion>1.1.6</AssemblyVersion>
+    <AssemblyVersion>1.2.0</AssemblyVersion>
     <FileVersion>$(AssemblyVersion)</FileVersion>
     <Version>$(AssemblyVersion)</Version>
     <LangVersion>latest</LangVersion>
