@@ -22,7 +22,7 @@ namespace JBOBYH_ItemPreviewQoL
                 "General",
                 "Enable Plugin",
                 true,
-                "Enables or disables all features of this plugin." 
+                "Enables or disables all features of this plugin."
             );
             ShowScreenshotButton = Config.Bind(
                 "General",
@@ -72,14 +72,7 @@ namespace JBOBYH_ItemPreviewQoL
         {
             if (!IsTyfonPresent.HasValue)
             {
-                if (Chainloader.PluginInfos.TryGetValue("com.tyfon.uifixes", out _))
-                {
-                    IsTyfonPresent = true;
-                }
-                else
-                {
-                    IsTyfonPresent = false;
-                }
+                IsTyfonPresent = Chainloader.PluginInfos.ContainsKey("com.tyfon.uifixes");
             }
 
             return IsTyfonPresent.Value;
