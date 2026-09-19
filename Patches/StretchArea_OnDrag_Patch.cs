@@ -8,7 +8,7 @@ namespace JBOBYH_ItemPreviewQoL.Patches
 {
     public class StretchArea_OnDrag_Patch : ModulePatch
     {
-        protected override MethodBase GetTargetMethod() => AccessTools.Method(typeof(StretchArea), "OnDrag");
+        protected override MethodBase GetTargetMethod() => AccessTools.Method(typeof(StretchArea), nameof(StretchArea.OnDrag));
 
         [HarmonyPriority(Priority.First)]
         [PatchPrefix]

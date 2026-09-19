@@ -12,7 +12,7 @@ namespace JBOBYH_ItemPreviewQoL.Patches
     /// </summary>
     internal class ItemInfoWindowLabels_Show_Patch : ModulePatch
     {
-        protected override MethodBase GetTargetMethod() => AccessTools.Method(typeof(ItemInfoWindowLabels), "Show");
+        protected override MethodBase GetTargetMethod() => AccessTools.Method(typeof(ItemInfoWindowLabels), nameof(ItemInfoWindowLabels.Show));
 
         [HarmonyAfter("com.tyfon.uifixes")]
         [PatchPostfix]

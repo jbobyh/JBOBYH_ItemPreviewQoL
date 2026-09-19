@@ -22,8 +22,8 @@ namespace JBOBYH_ItemPreviewQoL.Patches
             new HighPriorityDragPatch(typeof(DragTrigger), nameof(DragTrigger.OnBeginDrag)).Enable();
             new HighPriorityDragPatch(typeof(DragTrigger), nameof(DragTrigger.OnEndDrag)).Enable();
 
-            new HighPriorityDragPatch(typeof(UIDragComponent), nameof(UIDragComponent.OnDrag)).Enable();
-            new HighPriorityDragPatch(typeof(UIDragComponent), nameof(UIDragComponent.OnBeginDrag)).Enable();
+            new HighPriorityDragPatch(typeof(UIDragComponent), "UnityEngine.EventSystems.IDragHandler.OnDrag").Enable();
+            new HighPriorityDragPatch(typeof(UIDragComponent), "UnityEngine.EventSystems.IBeginDragHandler.OnBeginDrag").Enable();
         }
 
         public class HighPriorityDragPatch(Type type, string methodName) : ModulePatch

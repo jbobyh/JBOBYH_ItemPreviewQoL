@@ -7,18 +7,18 @@ using System.Reflection;
 namespace JBOBYH_ItemPreviewQoL.Patches
 {
     /// <summary>
-    /// Этот патч полностью отключает оригинальную игровую логику вращения предмета (метод method_4).
-    /// Наша собственная логика реализуется через ItemPreviewInteractionManager. 
+    /// Этот патч полностью отключает оригинальную игровую логику вращения предмета (метод Rotate).
+    /// Наша собственная логика реализуется через ItemPreviewInteractionManager.
     /// </summary>
     internal class ItemInfoWindowLabels_method_4_Patch : ModulePatch
     {
-        protected override MethodBase GetTargetMethod() => AccessTools.Method(typeof(ItemInfoWindowLabels), "method_4");
+        protected override MethodBase GetTargetMethod() => AccessTools.Method(typeof(ItemInfoWindowLabels), nameof(ItemInfoWindowLabels.Rotate));
 
         [PatchPrefix]
         private static bool Prefix()
         {
             if (!Plugin.EnablePlugin.Value) return true; // Если плагин отключен, выполняем оригинальный метод
             return false; // Возвращаем false, чтобы предотвратить выполнение оригинального метода
-        } 
+        }
     }
 }
