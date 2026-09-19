@@ -1,18 +1,17 @@
-<?xml version="1.0" encoding="utf-8"?>
-<Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
-  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+<Project Sdk="Microsoft.NET.Sdk">
+
   <PropertyGroup>
-    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
-    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{BF1500B9-6FAA-402D-A00C-329D40251733}</ProjectGuid>
-    <OutputType>Library</OutputType>
-    <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>JBOBYH_ItemPreviewQoL</RootNamespace>
-    <AssemblyName>JBOBYH_ItemPreviewQoL</AssemblyName>
-    <TargetFrameworkVersion>v4.7.2</TargetFrameworkVersion>
-    <FileAlignment>512</FileAlignment>
+    <TargetFramework>netstandard2.1</TargetFramework>
+    <Nullable>disable</Nullable>
+    <Authors>JBOBYH</Authors>
+    <Copyright>Copyright (c) JBOBYH 2026</Copyright>
+    <AssemblyVersion>1.1.6</AssemblyVersion>
+    <FileVersion>$(AssemblyVersion)</FileVersion>
+    <Version>$(AssemblyVersion)</Version>
+    <LangVersion>latest</LangVersion>
     <Deterministic>true</Deterministic>
     <SPTPath>..\..</SPTPath>
+    <OutPath>$(SPTPath)\BepInEx\plugins\JBOBYH</OutPath>
     <AssemblySearchPaths>
       $(AssemblySearchPaths);
       $(SPTPath)\EscapeFromTarkov_Data\Managed;
@@ -22,26 +21,7 @@
       $(SPTPath)\BepInEx\plugins\sinai-dev-UnityExplorer;
     </AssemblySearchPaths>
   </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
-    <DebugSymbols>true</DebugSymbols>
-    <DebugType>full</DebugType>
-    <Optimize>false</Optimize>
-    <OutputPath>bin\Debug\</OutputPath>
-    <DefineConstants>DEBUG;TRACE</DefineConstants>
-    <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>4</WarningLevel>
-  </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
-    <DebugType>pdbonly</DebugType>
-    <Optimize>true</Optimize>
-    <OutputPath>bin\Release\</OutputPath>
-    <DefineConstants>TRACE</DefineConstants>
-    <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>4</WarningLevel>
-  </PropertyGroup>
-  <PropertyGroup>
-    <LangVersion>12.0</LangVersion>
-  </PropertyGroup>
+
   <ItemGroup>
     <Reference Include="Assembly-CSharp" />
     <Reference Include="0Harmony" />
@@ -64,22 +44,10 @@
     <Reference Include="UnityEngine.UI" />
     <Reference Include="UnityExplorer.BIE5.Mono" />
   </ItemGroup>
-  <ItemGroup>
-    <Compile Include="Patches\StretchArea_OnDrag_Patch.cs" />
-    <Compile Include="Patches\InfoWindow_Close_Patch.cs" />
-    <Compile Include="Patches\InfoWindow_OnPointerClick_Patch.cs" />
-    <Compile Include="Patches\ItemInfoWindowLabels_method_4_Patch.cs" />
-    <Compile Include="Patches\ItemInfoWindowLabels_Show_Patch.cs" />
-    <Compile Include="Manager.cs" />
-    <Compile Include="Patches\ItemSpecifications_Show_Patch.cs" />
-    <Compile Include="Patches\DragTrigger_Patch.cs" />
-    <Compile Include="Patches\WeaponPreview_Zoom_Patch.cs" />
-    <Compile Include="Plugin.cs" />
-    <Compile Include="PluginInfo.cs" />
-    <Compile Include="Properties\AssemblyInfo.cs" />
-  </ItemGroup>
-  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
-  <PropertyGroup>
-    <PostBuildEvent>copy "$(TargetPath)" "$(ProjectDir)\..\..\..\SPT-4.0\BepInEx\plugins\JBOBYH\$(TargetFileName)"</PostBuildEvent>
-  </PropertyGroup>
+
+  <Target Name="CopyToBepInEx" AfterTargets="Build">
+    <MakeDir Directories="$(OutPath)" />
+    <Copy SourceFiles="$(TargetPath)" DestinationFolder="$(OutPath)" />
+  </Target>
+
 </Project>
