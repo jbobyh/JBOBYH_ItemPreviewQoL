@@ -7,7 +7,7 @@ using System;
 
 namespace JBOBYH_ItemPreviewQoL
 {
-    [BepInDependency("Tyfon.UIFixes", BepInDependency.DependencyFlags.SoftDependency)]
+    [BepInDependency("com.tyfon.uifixes", BepInDependency.DependencyFlags.SoftDependency)]
     [BepInPlugin(PluginInfo.PLUGIN_GUID, PluginInfo.PLUGIN_NAME, PluginInfo.PLUGIN_VERSION)]
     public class Plugin : BaseUnityPlugin
     {
@@ -72,7 +72,7 @@ namespace JBOBYH_ItemPreviewQoL
         {
             if (!IsTyfonPresent.HasValue)
             {
-                if (Chainloader.PluginInfos.TryGetValue("Tyfon.UIFixes", out _))
+                if (Chainloader.PluginInfos.TryGetValue("com.tyfon.uifixes", out _))
                 {
                     IsTyfonPresent = true;
                 }

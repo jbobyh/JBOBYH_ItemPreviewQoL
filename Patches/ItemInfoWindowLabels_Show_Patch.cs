@@ -14,7 +14,7 @@ namespace JBOBYH_ItemPreviewQoL.Patches
     {
         protected override MethodBase GetTargetMethod() => AccessTools.Method(typeof(ItemInfoWindowLabels), "Show");
 
-        [HarmonyAfter("Tyfon.UIFixes")]
+        [HarmonyAfter("com.tyfon.uifixes")]
         [PatchPostfix]
         private static void Postfix(ItemInfoWindowLabels __instance, WeaponPreview weaponPreview)
         {
