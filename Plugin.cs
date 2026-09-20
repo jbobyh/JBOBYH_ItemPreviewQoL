@@ -7,7 +7,7 @@ using System;
 
 namespace JBOBYH_ItemPreviewQoL
 {
-    [BepInDependency("Tyfon.UIFixes", BepInDependency.DependencyFlags.SoftDependency)]
+    [BepInDependency("com.tyfon.uifixes", BepInDependency.DependencyFlags.SoftDependency)]
     [BepInPlugin(PluginInfo.PLUGIN_GUID, PluginInfo.PLUGIN_NAME, PluginInfo.PLUGIN_VERSION)]
     public class Plugin : BaseUnityPlugin
     {
@@ -22,7 +22,7 @@ namespace JBOBYH_ItemPreviewQoL
                 "General",
                 "Enable Plugin",
                 true,
-                "Enables or disables all features of this plugin." 
+                "Enables or disables all features of this plugin."
             );
             ShowScreenshotButton = Config.Bind(
                 "General",
@@ -72,14 +72,7 @@ namespace JBOBYH_ItemPreviewQoL
         {
             if (!IsTyfonPresent.HasValue)
             {
-                if (Chainloader.PluginInfos.TryGetValue("Tyfon.UIFixes", out _))
-                {
-                    IsTyfonPresent = true;
-                }
-                else
-                {
-                    IsTyfonPresent = false;
-                }
+                IsTyfonPresent = Chainloader.PluginInfos.ContainsKey("com.tyfon.uifixes");
             }
 
             return IsTyfonPresent.Value;

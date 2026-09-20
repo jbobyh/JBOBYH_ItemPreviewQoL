@@ -12,7 +12,7 @@ namespace JBOBYH_ItemPreviewQoL.Patches
     /// </summary>
     internal class InfoWindow_Close_Patch : ModulePatch
     {
-        protected override MethodBase GetTargetMethod() => AccessTools.Method(typeof(InfoWindow), "Close");
+        protected override MethodBase GetTargetMethod() => AccessTools.Method(typeof(InfoWindow), nameof(InfoWindow.Close));
         // Используем Postfix, чтобы выполнить нашу логику после закрытия окна
         [PatchPostfix]
         private static void Postfix(InfoWindow __instance)

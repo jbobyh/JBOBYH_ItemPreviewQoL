@@ -69,8 +69,8 @@ namespace JBOBYH_ItemPreviewQoL.Patches
             {
                 if (_previewPivot == null && _weaponPreview != null)
                 {
-                    // Доступ к приватному полю transform_2 через рефлексию (более надежно, чем поиск по имени)
-                    _previewPivot = AccessTools.Field(typeof(WeaponPreview), "transform_2").GetValue(_weaponPreview) as Transform;
+                    // Доступ к приватному полю _previewPivot через рефлексию (более надежно, чем поиск по имени)
+                    _previewPivot = AccessTools.Field(typeof(WeaponPreview), "_previewPivot").GetValue(_weaponPreview) as Transform;
                 }
                 return _previewPivot;
             }
@@ -82,8 +82,8 @@ namespace JBOBYH_ItemPreviewQoL.Patches
             {
                 if (_weaponCamera == null && _weaponPreview != null)
                 {
-                    // Доступ к приватному полю camera_0
-                    _weaponCamera = AccessTools.Field(typeof(WeaponPreview), "camera_0").GetValue(_weaponPreview) as Camera;
+                    // Доступ к приватному полю _weaponPreviewCamera
+                    _weaponCamera = AccessTools.Field(typeof(WeaponPreview), "_weaponPreviewCamera").GetValue(_weaponPreview) as Camera;
                 }
                 return _weaponCamera;
             }
@@ -248,7 +248,7 @@ namespace JBOBYH_ItemPreviewQoL.Patches
             }
         }
 
-        public void ToggleFullscreen() 
+        public void ToggleFullscreen()
         {
             // Обращаемся к полям напрямую, без 'data.'
             if (_sizeFitter == null) _sizeFitter = _instance.GetComponent<ContentSizeFitter>();
